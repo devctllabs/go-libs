@@ -1,0 +1,49 @@
+[settings]
+lockfile = true
+
+[tools]
+go = "1.25.0"
+golangci-lint = "2.12.2"
+git-cliff = "2.13.1"
+node = "24"
+"npm:@openai/codex" = "0.146.0"
+"npm:quicktype" = "26.0.0"
+
+[tasks."codexapp:generate"]
+description = "Refresh the checked-in Codex App Server protocol snapshot and Go types"
+run = "go generate ./codexapp/..."
+
+[tasks."codexapp:check-generated"]
+description = "Verify the checked-in Codex App Server protocol artifacts"
+run = "go run ./codexapp/internal/protocol/cmd/generate -check"
+
+[tasks."codexapp:test"]
+description = "Run codexapp tests"
+run = "go test ./codexapp/..."
+
+[tasks.test]
+description = "Run tests for all Go modules"
+run = "go test ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./health/... ./healthotel/... ./healthserver/... ./healthzap/... ./lifecycle/... ./log/... ./oapivalidator/... ./postgresdb/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+
+[tasks.lint]
+description = "Run golangci-lint for all Go modules"
+run = "golangci-lint run ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./health/... ./healthotel/... ./healthserver/... ./healthzap/... ./lifecycle/... ./log/... ./oapivalidator/... ./postgresdb/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+
+[tasks."test:race"]
+description = "Run race-enabled tests for all Go modules"
+run = "go test -race ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./health/... ./healthotel/... ./healthserver/... ./healthzap/... ./lifecycle/... ./log/... ./oapivalidator/... ./postgresdb/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+
+[tasks."postgresdb:test-integration"]
+description = "Run race-enabled PostgreSQL integration tests"
+run = "go test -race -tags=integration ./postgresdb/..."
+
+[tasks.generate]
+description = "Refresh all checked-in generated Go artifacts"
+run = "go generate ./codexapp/... ./config/... ./filesystem/... ./health/... ./healthserver/... ./oapivalidator/... ./txmanager/..."
+
+[tasks."check-generated"]
+description = "Verify all checked-in generated Go artifacts"
+run = """
+mise run generate
+git diff --exit-code
+"""

@@ -1,0 +1,103 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+info:
+  title: Health probes
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+security: []
+tags:
+  - name: health
+paths:
+  /livez:
+    get:
+      operationId: getLivenessProbe
+      summary: Report whether the health server is live.
+      tags: [health]
+      responses:
+        '200':
+          $ref: '#/components/responses/ProbeSucceeded'
+  /readyz:
+    get:
+      operationId: getReadinessProbe
+      summary: Report whether the application can receive traffic.
+      tags: [health]
+      parameters:
+        - name: verbose
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          $ref: '#/components/responses/ProbeSucceeded'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          $ref: '#/components/responses/ProbeFailed'
+components:
+  responses:
+    ProbeSucceeded:
+      description: The probe succeeded.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProbeResponse'
+    ProbeFailed:
+      description: The probe failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProbeResponse'
+    BadRequest:
+      description: A query parameter was malformed.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+  schemas:
+    ProbeStatus:
+      type: string
+      enum: [ok, fail]
+    CheckResult:
+      type: object
+      additionalProperties: false
+      required: [name, status, critical]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        status:
+          $ref: '#/components/schemas/ProbeStatus'
+        critical:
+          type: boolean
+    ProbeResponse:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/ProbeStatus'
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckResult'
+    ProblemDetails:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, retryable]
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          enum: [/problems/bad-request]
+        title:
+          type: string
+          minLength: 1
+        status:
+          type: integer
+          enum: [400]
+        retryable:
+          type: boolean
+          enum: [false]

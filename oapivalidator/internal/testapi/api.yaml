@@ -1,0 +1,25 @@
+openapi: 3.1.0
+info:
+  title: oapivalidator integration fixture
+  version: 1.0.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
+paths:
+  /fixture/{id}:
+    get:
+      operationId: GetFixture
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            const: fixture-1
+      responses:
+        "204":
+          description: Found

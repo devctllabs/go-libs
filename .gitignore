@@ -1,0 +1,16 @@
+# Go build artifacts
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test and coverage artifacts
+*.test
+*.out
+*.coverprofile
+
+# Python helper test artifacts
+__pycache__/
+*.pyc

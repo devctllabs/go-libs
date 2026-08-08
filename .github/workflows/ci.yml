@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_call:
+    inputs:
+      force_go_ci:
+        description: Run Go checks regardless of changed paths.
+        type: boolean
+        default: false
+      run_postgres_integration:
+        description: Run PostgreSQL integration tests regardless of changed paths.
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      go_ci: ${{ steps.filter.outputs.go_ci }}
+      postgres: ${{ steps.filter.outputs.postgres }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Detect changed paths
+        id: filter
+        if: ${{ !inputs.force_go_ci && !inputs.run_postgres_integration }}
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            go_ci:
+              - '**/*.go'
+              - '**/go.mod'
+              - '**/go.sum'
+              - 'go.work'
+              - 'go.work.sum'
+              - '.golangci.yml'
+              - 'mise.toml'
+              - 'mise.lock'
+              - '.github/workflows/**'
+              - '.github/scripts/**'
+            postgres:
+              - 'postgresdb/**'
+              - 'txmanager/**'
+              - 'go.work'
+              - 'go.work.sum'
+              - '.github/workflows/ci.yml'
+
+  quality:
+    needs: changes
+    if: inputs.force_go_ci || needs.changes.outputs.go_ci == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+      - name: Lint
+        run: mise run lint
+      - name: Check generated code
+        run: mise run check-generated
+      - name: Test with race detector
+        run: mise run test:race
+      - name: Test release helper
+        run: python3 -m unittest discover -s .github/scripts/tests -t .github/scripts
+
+  postgres-integration:
+    needs: changes
+    if: inputs.run_postgres_integration || needs.changes.outputs.postgres == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+      - name: Run PostgreSQL integration tests
+        run: mise run postgresdb:test-integration
+
+  gate:
+    if: always()
+    needs: [changes, quality, postgres-integration]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify CI result
+        env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          POSTGRES_RESULT: ${{ needs.postgres-integration.result }}
+        run: |
+          for result in "$CHANGES_RESULT" "$QUALITY_RESULT" "$POSTGRES_RESULT"; do
+            case "$result" in
+              success|skipped) ;;
+              *) exit 1 ;;
+            esac
+          done

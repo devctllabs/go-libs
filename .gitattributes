@@ -1,0 +1,3 @@
+*.gen.go -diff linguist-generated=true
+*.gen.json -diff linguist-generated=true
+**/mocks/** -diff linguist-generated=true

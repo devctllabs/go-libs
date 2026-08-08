@@ -1,0 +1,25 @@
+go 1.25.0
+
+use (
+	./codexapp
+	./config
+	./debugserver
+	./di
+	./filesystem
+	./health
+	./healthotel
+	./healthserver
+	./healthzap
+	./lifecycle
+	./log
+	./oapivalidator
+	./postgresdb
+	./sqlitedb
+	./telemetry
+	./txmanager
+)
+
+replace (
+	github.com/devctllabs/go-libs/health v0.1.0 => ./health
+	github.com/devctllabs/go-libs/txmanager v0.1.0 => ./txmanager
+)
