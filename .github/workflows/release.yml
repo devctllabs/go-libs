@@ -11,12 +11,13 @@ on:
       bump:
         description: Stable semantic-version increment.
         required: true
-        default: patch
+        default: minor
         type: choice
         options: [patch, minor, major]
 
 permissions:
   contents: write
+  pull-requests: read
 
 concurrency:
   group: release-${{ inputs.module }}
