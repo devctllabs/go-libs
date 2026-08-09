@@ -1,0 +1,70 @@
+name: Preview module release
+
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: Module to preview.
+        required: true
+        type: choice
+        options: [codexapp, config, debugserver, di, filesystem, health, healthotel, healthserver, healthzap, lifecycle, log, oapivalidator, postgresdb, sqlitedb, telemetry, txmanager]
+      bump:
+        description: Stable semantic-version increment.
+        required: true
+        default: patch
+        type: choice
+        options: [patch, minor, major]
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    env:
+      MODULE: ${{ inputs.module }}
+      BUMP: ${{ inputs.bump }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: jdx/mise-action@v4
+      - name: Compute release
+        id: release
+        run: |
+          set -euo pipefail
+          next_tag="$(python3 .github/scripts/compute_release.py --module "$MODULE" --bump "$BUMP" --require-new-commits)"
+          previous_tag="$(python3 .github/scripts/compute_release.py --module "$MODULE" --bump "$BUMP" --previous)"
+          echo "next_tag=$next_tag" >> "$GITHUB_OUTPUT"
+          echo "previous_tag=$previous_tag" >> "$GITHUB_OUTPUT"
+      - name: Generate release notes
+        env:
+          NEXT_TAG: ${{ steps.release.outputs.next_tag }}
+          PREVIOUS_TAG: ${{ steps.release.outputs.previous_tag }}
+        run: |
+          set -euo pipefail
+          range=()
+          if [[ -n "$PREVIOUS_TAG" ]]; then
+            range=("$PREVIOUS_TAG..HEAD")
+          fi
+          git-cliff "${range[@]}" \
+            --include-path "$MODULE/**" \
+            --tag-pattern "^${MODULE}/v[0-9]+\\.[0-9]+\\.[0-9]+$" \
+            --tag "$NEXT_TAG" \
+            --output release-notes.md
+      - name: Publish preview summary
+        env:
+          NEXT_TAG: ${{ steps.release.outputs.next_tag }}
+          PREVIOUS_TAG: ${{ steps.release.outputs.previous_tag }}
+        run: |
+          {
+            echo "# Release preview"
+            echo
+            echo "- Module: \`$MODULE\`"
+            echo "- Previous tag: \`${PREVIOUS_TAG:-none}\`"
+            echo "- Next tag: \`$NEXT_TAG\`"
+            echo
+            cat release-notes.md
+          } >> "$GITHUB_STEP_SUMMARY"
