@@ -37,7 +37,7 @@ func Run(ctx context.Context, cfg Config) error {
 	}
 
 	if ctx.Err() != nil {
-		return errors.Join(parentError(ctx), shutdown(ctx, cfg))
+		return errors.Join(parentError(ctx), Shutdown(ctx, cfg.ShutdownTimeout, cfg.Shutdown))
 	}
 
 	group, runCtx := errgroup.WithContext(ctx)
@@ -57,7 +57,7 @@ func Run(ctx context.Context, cfg Config) error {
 	}
 
 	<-runCtx.Done()
-	shutdownErr := shutdown(ctx, cfg)
+	shutdownErr := Shutdown(ctx, cfg.ShutdownTimeout, cfg.Shutdown)
 	runErr := group.Wait()
 	return errors.Join(runErr, parentError(ctx), shutdownErr)
 }
@@ -93,10 +93,23 @@ func validate(ctx context.Context, cfg Config) error {
 	return nil
 }
 
-func shutdown(ctx context.Context, cfg Config) error {
-	shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), cfg.ShutdownTimeout)
+// Shutdown calls shutdown with a fresh context that preserves values from ctx,
+// ignores its cancellation, and has the supplied positive timeout. It returns
+// the callback error unchanged.
+func Shutdown(ctx context.Context, timeout time.Duration, shutdown func(context.Context) error) error {
+	if ctx == nil {
+		return errors.New("lifecycle: context must not be nil")
+	}
+	if timeout <= 0 {
+		return errors.New("lifecycle: shutdown timeout must be positive")
+	}
+	if shutdown == nil {
+		return errors.New("lifecycle: shutdown must not be nil")
+	}
+
+	shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), timeout)
 	defer cancel()
-	return cfg.Shutdown(shutdownCtx)
+	return shutdown(shutdownCtx)
 }
 
 func parentError(ctx context.Context) error {

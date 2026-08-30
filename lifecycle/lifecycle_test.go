@@ -60,6 +60,56 @@ func TestRunValidatesConfigBeforeStartingAnything(t *testing.T) {
 	}
 }
 
+func TestShutdownValidatesInputBeforeCallingCallback(t *testing.T) {
+	t.Parallel()
+
+	var calls atomic.Int32
+	callback := func(context.Context) error {
+		calls.Add(1)
+		return nil
+	}
+
+	require.Error(t, lifecycle.Shutdown(nil, time.Second, callback)) //nolint:staticcheck // Nil verifies input validation.
+	require.Error(t, lifecycle.Shutdown(context.Background(), 0, callback))
+	require.Error(t, lifecycle.Shutdown(context.Background(), -time.Second, callback))
+	require.Error(t, lifecycle.Shutdown(context.Background(), time.Second, nil))
+	require.Zero(t, calls.Load())
+}
+
+func TestShutdownUsesFreshBoundedContextAndPreservesValues(t *testing.T) {
+	t.Parallel()
+
+	type contextKey string
+	const key contextKey = "request"
+	parent, cancel := context.WithCancel(context.WithValue(context.Background(), key, "value"))
+	cancel()
+
+	err := lifecycle.Shutdown(parent, time.Second, func(ctx context.Context) error {
+		require.NoError(t, ctx.Err())
+		require.Equal(t, "value", ctx.Value(key))
+		deadline, ok := ctx.Deadline()
+		require.True(t, ok)
+		require.WithinDuration(t, time.Now().Add(time.Second), deadline, 100*time.Millisecond)
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+func TestShutdownReturnsCallbackErrorAndEnforcesTimeout(t *testing.T) {
+	t.Parallel()
+
+	callbackErr := errors.New("close resource")
+	require.ErrorIs(t, lifecycle.Shutdown(context.Background(), time.Second, func(context.Context) error {
+		return callbackErr
+	}), callbackErr)
+
+	err := lifecycle.Shutdown(context.Background(), time.Millisecond, func(ctx context.Context) error {
+		<-ctx.Done()
+		return ctx.Err()
+	})
+	require.ErrorIs(t, err, context.DeadlineExceeded)
+}
+
 func TestRunTreatsTaskReturningNilAsUnexpectedStop(t *testing.T) {
 	t.Parallel()
 
