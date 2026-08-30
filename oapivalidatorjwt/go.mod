@@ -3,7 +3,7 @@ module github.com/devctllabs/go-libs/oapivalidatorjwt
 go 1.25.0
 
 require (
-	github.com/devctllabs/go-libs/oapivalidator v0.1.0
+	github.com/devctllabs/go-libs/oapivalidator v0.2.0
 	github.com/getkin/kin-openapi v0.142.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/stretchr/testify v1.11.1
@@ -13,6 +13,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-openapi/jsonpointer v0.23.1 // indirect
 	github.com/go-openapi/swag/jsonname v0.26.0 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/labstack/echo/v5 v5.1.1 // indirect
 	github.com/oasdiff/yaml v0.1.1 // indirect
 	github.com/oasdiff/yaml3 v0.0.14 // indirect

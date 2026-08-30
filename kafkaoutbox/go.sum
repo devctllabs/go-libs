@@ -27,8 +27,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/devctllabs/go-libs/kafka v0.1.0 h1:SCIkJfezi2RkZvuLZFQ6t9YggchXoqwes3epW2Uc4vo=
 github.com/devctllabs/go-libs/kafka v0.1.0/go.mod h1:f2CYWmr7lj7YR2l3cqUfZ0UtntUZWI1gRTqbjPvYURs=
-github.com/devctllabs/go-libs/postgresdb v0.1.0 h1:fh8si3uItF8OK+8gYlK45jnB8+kpYbIyGE0SZX8ve5k=
-github.com/devctllabs/go-libs/postgresdb v0.1.0/go.mod h1:q0cD+nVZz/S+CTzVVAJIx1XSnuIqtXbDcapd3SHhdPs=
+github.com/devctllabs/go-libs/postgresdb v0.2.0 h1:4QhmPbVOnQXiy4qBmmBxHH0k8veqf8mNUmjT1z8dcas=
+github.com/devctllabs/go-libs/postgresdb v0.2.0/go.mod h1:q0cD+nVZz/S+CTzVVAJIx1XSnuIqtXbDcapd3SHhdPs=
 github.com/devctllabs/go-libs/retry v0.1.0 h1:gb59cPoksmVR4Vav5bhBZPWsTsH/UoBupx3CCcCOUKw=
 github.com/devctllabs/go-libs/retry v0.1.0/go.mod h1:m1dVGVLlA+Vvnu7VZ9ZFSDEuGwlrpWr0Oil9J0SySwU=
 github.com/devctllabs/go-libs/txmanager v0.1.0 h1:UEiZ1vDeM+e4umlBynka5k+Go56N4N1EpIZwZ7nnhsY=
