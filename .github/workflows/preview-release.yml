@@ -1,4 +1,5 @@
 name: Preview module release
+run-name: Preview ${{ inputs.module }} (${{ inputs.bump }})
 
 on:
   workflow_dispatch:

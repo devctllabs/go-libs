@@ -1,4 +1,5 @@
 name: Release module
+run-name: Release ${{ inputs.module }} (${{ inputs.bump }})
 
 on:
   workflow_dispatch:
