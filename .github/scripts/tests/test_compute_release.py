@@ -11,6 +11,30 @@ def completed(stdout: str = "", returncode: int = 0, stderr: str = "") -> subpro
 
 
 class ReleaseVersionTests(unittest.TestCase):
+    def test_supports_buildinfo_module(self) -> None:
+        previous, next_tag = compute_release("buildinfo", "minor", lambda _: completed())
+        self.assertEqual("", previous)
+        self.assertEqual("buildinfo/v0.1.0", next_tag)
+
+    def test_supports_oidc_session_redis_module(self) -> None:
+        previous, next_tag = compute_release("oidcsessionredis", "minor", lambda _: completed())
+        self.assertEqual("", previous)
+        self.assertEqual("oidcsessionredis/v0.1.0", next_tag)
+
+    def test_supports_grpc_modules(self) -> None:
+        for module in ("grpcclient", "grpcserver", "grpczap", "healthgrpc"):
+            with self.subTest(module=module):
+                previous, next_tag = compute_release(module, "minor", lambda _: completed())
+                self.assertEqual("", previous)
+                self.assertEqual(f"{module}/v0.1.0", next_tag)
+
+    def test_supports_kafka_modules(self) -> None:
+        for module in ("kafka", "kafkaproto", "kafkazap", "kafkaoutbox", "kafkaoutboxzap"):
+            with self.subTest(module=module):
+                previous, next_tag = compute_release(module, "minor", lambda _: completed())
+                self.assertEqual("", previous)
+                self.assertEqual(f"{module}/v0.1.0", next_tag)
+
     def test_initial_minor_release_is_v0_1_0(self) -> None:
         previous, next_tag = compute_release("health", "minor", lambda _: completed())
         self.assertEqual("", previous)

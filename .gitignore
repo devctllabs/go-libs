@@ -6,6 +6,8 @@ bin/
 *.so
 *.dylib
 
+.idea/
+
 # Go test and coverage artifacts
 *.test
 *.out

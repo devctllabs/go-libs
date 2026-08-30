@@ -15,6 +15,14 @@ on:
         description: Run PostgreSQL integration tests regardless of changed paths.
         type: boolean
         default: false
+      run_redis_integration:
+        description: Run Redis session integration tests regardless of changed paths.
+        type: boolean
+        default: false
+      run_kafkaoutbox_integration:
+        description: Run Kafka outbox integration tests regardless of changed paths.
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -30,11 +38,13 @@ jobs:
     outputs:
       go_ci: ${{ steps.filter.outputs.go_ci }}
       postgres: ${{ steps.filter.outputs.postgres }}
+      redis: ${{ steps.filter.outputs.redis }}
+      kafkaoutbox: ${{ steps.filter.outputs.kafkaoutbox }}
     steps:
       - uses: actions/checkout@v6
       - name: Detect changed paths
         id: filter
-        if: ${{ !inputs.force_go_ci && !inputs.run_postgres_integration }}
+        if: ${{ !inputs.force_go_ci && !inputs.run_postgres_integration && !inputs.run_redis_integration && !inputs.run_kafkaoutbox_integration }}
         uses: dorny/paths-filter@v4
         with:
           filters: |
@@ -52,6 +62,21 @@ jobs:
             postgres:
               - 'postgresdb/**'
               - 'txmanager/**'
+              - 'go.work'
+              - 'go.work.sum'
+              - '.github/workflows/ci.yml'
+            redis:
+              - 'oidcsession/**'
+              - 'oidcsessionredis/**'
+              - 'go.work'
+              - 'go.work.sum'
+              - '.github/workflows/ci.yml'
+            kafkaoutbox:
+              - 'kafkaoutbox/**'
+              - 'kafka/**'
+              - 'postgresdb/**'
+              - 'txmanager/**'
+              - 'retry/**'
               - 'go.work'
               - 'go.work.sum'
               - '.github/workflows/ci.yml'
@@ -117,9 +142,67 @@ jobs:
       - name: Run PostgreSQL integration tests
         run: mise run postgresdb:test-integration
 
+  redis-integration:
+    needs: changes
+    if: inputs.run_redis_integration || needs.changes.outputs.redis == 'true'
+    runs-on: ubuntu-latest
+    env:
+      MISE_TASK_RUN_AUTO_INSTALL: "false"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: go
+      - name: Resolve Go cache
+        id: go-cache
+        run: |
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+          echo "modules=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "version=$(go env GOVERSION)" >> "$GITHUB_OUTPUT"
+      - name: Restore Go caches
+        uses: actions/cache@v6
+        with:
+          path: |
+            ${{ steps.go-cache.outputs.build }}
+            ${{ steps.go-cache.outputs.modules }}
+          key: redis-go-${{ runner.os }}-${{ runner.arch }}-${{ steps.go-cache.outputs.version }}-${{ hashFiles('go.work', 'go.work.sum', '**/go.mod', '**/go.sum') }}
+          restore-keys: |
+            redis-go-${{ runner.os }}-${{ runner.arch }}-${{ steps.go-cache.outputs.version }}-
+      - name: Run Redis session integration tests
+        run: mise run oidcsessionredis:test-integration
+
+  kafkaoutbox-integration:
+    needs: changes
+    if: inputs.run_kafkaoutbox_integration || needs.changes.outputs.kafkaoutbox == 'true'
+    runs-on: ubuntu-latest
+    env:
+      MISE_TASK_RUN_AUTO_INSTALL: "false"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: go
+      - name: Resolve Go cache
+        id: go-cache
+        run: |
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+          echo "modules=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "version=$(go env GOVERSION)" >> "$GITHUB_OUTPUT"
+      - name: Restore Go caches
+        uses: actions/cache@v6
+        with:
+          path: |
+            ${{ steps.go-cache.outputs.build }}
+            ${{ steps.go-cache.outputs.modules }}
+          key: kafkaoutbox-go-${{ runner.os }}-${{ runner.arch }}-${{ steps.go-cache.outputs.version }}-${{ hashFiles('go.work', 'go.work.sum', '**/go.mod', '**/go.sum') }}
+          restore-keys: |
+            kafkaoutbox-go-${{ runner.os }}-${{ runner.arch }}-${{ steps.go-cache.outputs.version }}-
+      - name: Run Kafka outbox integration tests
+        run: mise run kafkaoutbox:test-integration
+
   gate:
     if: always()
-    needs: [changes, quality, postgres-integration]
+    needs: [changes, quality, postgres-integration, redis-integration, kafkaoutbox-integration]
     runs-on: ubuntu-latest
     steps:
       - name: Verify CI result
@@ -127,8 +210,10 @@ jobs:
           CHANGES_RESULT: ${{ needs.changes.result }}
           QUALITY_RESULT: ${{ needs.quality.result }}
           POSTGRES_RESULT: ${{ needs.postgres-integration.result }}
+          REDIS_RESULT: ${{ needs.redis-integration.result }}
+          KAFKAOUTBOX_RESULT: ${{ needs.kafkaoutbox-integration.result }}
         run: |
-          for result in "$CHANGES_RESULT" "$QUALITY_RESULT" "$POSTGRES_RESULT"; do
+          for result in "$CHANGES_RESULT" "$QUALITY_RESULT" "$POSTGRES_RESULT" "$REDIS_RESULT" "$KAFKAOUTBOX_RESULT"; do
             case "$result" in
               success|skipped) ;;
               *) exit 1 ;;

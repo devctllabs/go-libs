@@ -51,8 +51,13 @@ func authenticationFailure(cause error) (FailureKind, string, bool) {
 	}
 
 	for _, failure := range authenticationErrors {
-		if !errors.Is(failure.cause, ErrUnauthenticated) && !errors.Is(failure.cause, ErrForbidden) {
+		if !errors.Is(failure.cause, ErrUnauthenticated) && !errors.Is(failure.cause, ErrForbidden) && !errors.Is(failure.cause, ErrAuthenticationUnavailable) {
 			return FailureInternal, "", true
+		}
+	}
+	for _, failure := range authenticationErrors {
+		if errors.Is(failure.cause, ErrAuthenticationUnavailable) {
+			return FailureAuthenticationUnavailable, "", true
 		}
 	}
 	for _, failure := range authenticationErrors {

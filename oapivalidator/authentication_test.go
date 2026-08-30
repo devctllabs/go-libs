@@ -108,6 +108,7 @@ func TestAuthenticationFailureMapping(t *testing.T) {
 	}{
 		{name: "unauthenticated", authError: fmt.Errorf("wrapped: %w", oapivalidator.ErrUnauthenticated), status: http.StatusUnauthorized, challenge: "Bearer"},
 		{name: "forbidden", authError: fmt.Errorf("wrapped: %w", oapivalidator.ErrForbidden), status: http.StatusForbidden},
+		{name: "authentication unavailable", authError: fmt.Errorf("wrapped: %w", oapivalidator.ErrAuthenticationUnavailable), status: http.StatusServiceUnavailable},
 		{name: "backend failure", authError: errors.New("identity provider unavailable"), status: http.StatusInternalServerError},
 	}
 
@@ -142,19 +143,37 @@ func TestAuthenticatorRejectsNilSuccessContext(t *testing.T) {
 	require.Equal(t, http.StatusInternalServerError, recorder.Code)
 }
 
-func TestAuthenticationFailurePriorityIsInternalThenForbiddenThenUnauthenticated(t *testing.T) {
+func TestAuthenticationFailurePriority(t *testing.T) {
 	t.Parallel()
-	controller := gomock.NewController(t)
-	authenticator := mocks.NewMockAuthenticator(controller)
-	first := authenticator.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(context.Background(), oapivalidator.ErrUnauthenticated)
-	second := authenticator.EXPECT().Authenticate(gomock.Any(), gomock.Any()).After(first).Return(context.Background(), oapivalidator.ErrForbidden)
-	authenticator.EXPECT().Authenticate(gomock.Any(), gomock.Any()).After(second).Return(context.Background(), errors.New("backend unavailable"))
-	middleware, err := oapivalidator.New(loadDocument(t, priorityDocument), oapivalidator.WithAuthenticator(authenticator))
-	require.NoError(t, err)
+	tests := []struct {
+		name   string
+		errors []error
+		status int
+	}{
+		{name: "unavailable over forbidden and unauthenticated", errors: []error{oapivalidator.ErrUnauthenticated, oapivalidator.ErrForbidden, oapivalidator.ErrAuthenticationUnavailable}, status: http.StatusServiceUnavailable},
+		{name: "internal over unavailable", errors: []error{oapivalidator.ErrUnauthenticated, oapivalidator.ErrAuthenticationUnavailable, errors.New("unexpected")}, status: http.StatusInternalServerError},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			controller := gomock.NewController(t)
+			authenticator := mocks.NewMockAuthenticator(controller)
+			var previous *gomock.Call
+			for _, authError := range test.errors {
+				call := authenticator.EXPECT().Authenticate(gomock.Any(), gomock.Any()).Return(context.Background(), authError)
+				if previous != nil {
+					call.After(previous)
+				}
+				previous = call
+			}
+			middleware, err := oapivalidator.New(loadDocument(t, priorityDocument), oapivalidator.WithAuthenticator(authenticator))
+			require.NoError(t, err)
 
-	recorder := serve(t, middleware, http.MethodGet, "/priority", "", "", nil)
+			recorder := serve(t, middleware, http.MethodGet, "/priority", "", "", nil)
 
-	require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			require.Equal(t, test.status, recorder.Code)
+		})
+	}
 }
 
 func TestMiddlewareDoesNotLeakAuthenticationContextBetweenConcurrentRequests(t *testing.T) {

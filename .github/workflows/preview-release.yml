@@ -7,7 +7,7 @@ on:
         description: Module to preview.
         required: true
         type: choice
-        options: [codexapp, config, debugserver, di, filesystem, health, healthotel, healthserver, healthzap, lifecycle, log, oapivalidator, postgresdb, sqlitedb, telemetry, txmanager]
+        options: [buildinfo, codexapp, config, debugserver, di, filesystem, grpcclient, grpcserver, grpczap, health, healthgrpc, healthotel, healthserver, healthzap, kafka, kafkaproto, kafkazap, kafkaoutbox, kafkaoutboxzap, lifecycle, log, oapivalidator, oapivalidatorjwt, oidcsession, oidcsessionredis, postgresdb, retry, sqlitedb, telemetry, txmanager]
       bump:
         description: Stable semantic-version increment.
         required: true
@@ -31,6 +31,14 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
       - uses: jdx/mise-action@v4
+      - name: Verify module outside the workspace
+        run: |
+          set -euo pipefail
+          cd "$MODULE"
+          GOWORK=off go mod tidy -diff
+          GOWORK=off go mod download
+          GOWORK=off go test -race ./...
+          git diff --exit-code -- go.mod go.sum
       - name: Compute release
         id: release
         run: |
