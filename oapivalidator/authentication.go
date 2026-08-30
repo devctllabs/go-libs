@@ -14,6 +14,9 @@ var ErrUnauthenticated = errors.New("unauthenticated")
 // ErrForbidden reports valid credentials without the required access.
 var ErrForbidden = errors.New("forbidden")
 
+// ErrAuthenticationUnavailable reports a temporary authentication dependency failure.
+var ErrAuthenticationUnavailable = errors.New("authentication unavailable")
+
 // AuthenticationInput describes one security scheme in the current OpenAPI
 // security requirement.
 type AuthenticationInput struct {

@@ -1,25 +1,46 @@
 go 1.25.0
 
 use (
+	./buildinfo
 	./codexapp
 	./config
 	./debugserver
 	./di
 	./filesystem
+	./grpcclient
+	./grpcserver
+	./grpczap
 	./health
+	./healthgrpc
 	./healthotel
 	./healthserver
 	./healthzap
+	./kafka
+	./kafkaoutbox
+	./kafkaoutboxzap
+	./kafkaproto
+	./kafkazap
 	./lifecycle
 	./log
 	./oapivalidator
+	./oapivalidatorjwt
+	./oidcsession
+	./oidcsessionredis
 	./postgresdb
+	./retry
 	./sqlitedb
 	./telemetry
 	./txmanager
 )
 
 replace (
+	github.com/devctllabs/go-libs/grpcserver v0.1.0 => ./grpcserver
 	github.com/devctllabs/go-libs/health v0.1.0 => ./health
+	github.com/devctllabs/go-libs/kafka v0.1.0 => ./kafka
+	github.com/devctllabs/go-libs/kafkaoutbox v0.1.0 => ./kafkaoutbox
+	github.com/devctllabs/go-libs/oapivalidator v0.1.0 => ./oapivalidator
+	github.com/devctllabs/go-libs/oidcsession v0.1.0 => ./oidcsession
+	github.com/devctllabs/go-libs/postgresdb v0.1.0 => ./postgresdb
+	github.com/devctllabs/go-libs/retry v0.1.0 => ./retry
 	github.com/devctllabs/go-libs/txmanager v0.1.0 => ./txmanager
 )

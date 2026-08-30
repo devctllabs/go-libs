@@ -8,12 +8,19 @@ Protect `main`, require the `CI / gate` and `Commit checks / commitlint` checks,
 
 ## Bootstrap order
 
-Release `health` and `txmanager` before the modules that depend on them:
+Release shared modules before the modules that depend on them:
 
-- `health` before `healthotel`, `healthserver`, and `healthzap`.
+- `grpcserver` before `grpczap`.
+- `health` before `healthgrpc`, `healthotel`, `healthserver`, and `healthzap`.
 - `txmanager` before `postgresdb` and `sqlitedb`.
+- `oapivalidator` before `oapivalidatorjwt`.
+- `retry` before `oidcsession`, and `oidcsession` before `oidcsessionredis`.
+- `retry` before `kafka`, and `kafka` before `kafkaproto` and `kafkazap`.
+- `kafka`, `postgresdb`, and `retry` before `kafkaoutbox`, then `kafkaoutbox` before `kafkaoutboxzap`.
 
-Workspace replacements make local monorepo development possible, but the release workflow tests the selected module with `GOWORK=off`. Therefore a dependent module cannot be published until its declared internal dependency exists publicly.
+The workspace `use` directives provide local package sources. Versioned internal requirements that do not have public tags yet are centralized as `go.work` replacements; publishable `go.mod` files do not contain local paths. Preview and release both run `go mod tidy -diff`, download dependencies, and run race-enabled tests with `GOWORK=off`, then verify that `go.mod` and `go.sum` stayed unchanged.
+
+Changes to a base module and its dependants may land in one pull request because normal CI uses the workspace. Release them in the order above. A dependent preview or release intentionally fails until the base tag exists and its checksum updates have been committed.
 
 ## Preview and publish
 

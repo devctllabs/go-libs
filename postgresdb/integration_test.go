@@ -42,11 +42,14 @@ func TestPostgresEndpointAndTransactionBehavior(t *testing.T) {
 	t.Cleanup(func() { require.NoError(t, db.Close()) })
 	require.NoError(t, db.Writer().Check(ctx))
 	require.NoError(t, db.Reader().Check(ctx))
+	require.False(t, db.Writer().InTransaction(ctx))
 	_, err = db.Writer().Exec(ctx, `CREATE TABLE entries (value text NOT NULL)`)
 	require.NoError(t, err)
 
 	callbackErr := errors.New("rollback requested")
 	err = db.Writer().WithinTx(ctx, func(txCtx context.Context) error {
+		require.True(t, db.Writer().InTransaction(txCtx))
+		require.True(t, db.Reader().InTransaction(txCtx))
 		_, insertErr := db.Writer().Exec(txCtx, `INSERT INTO entries VALUES ($1)`, "pending")
 		require.NoError(t, insertErr)
 		var count int

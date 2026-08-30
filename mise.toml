@@ -23,23 +23,31 @@ run = "go test ./codexapp/..."
 
 [tasks.test]
 description = "Run tests for all Go modules"
-run = "go test ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./health/... ./healthotel/... ./healthserver/... ./healthzap/... ./lifecycle/... ./log/... ./oapivalidator/... ./postgresdb/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "go test ./buildinfo/... ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
 
 [tasks.lint]
 description = "Run golangci-lint for all Go modules"
-run = "golangci-lint run ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./health/... ./healthotel/... ./healthserver/... ./healthzap/... ./lifecycle/... ./log/... ./oapivalidator/... ./postgresdb/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "golangci-lint run ./buildinfo/... ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
 
 [tasks."test:race"]
 description = "Run race-enabled tests for all Go modules"
-run = "go test -race ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./health/... ./healthotel/... ./healthserver/... ./healthzap/... ./lifecycle/... ./log/... ./oapivalidator/... ./postgresdb/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "go test -race ./buildinfo/... ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+
+[tasks."oidcsessionredis:test-integration"]
+description = "Run race-enabled Redis session integration tests"
+run = "go test -race -tags=integration ./oidcsessionredis/..."
 
 [tasks."postgresdb:test-integration"]
 description = "Run race-enabled PostgreSQL integration tests"
 run = "go test -race -tags=integration ./postgresdb/..."
 
+[tasks."kafkaoutbox:test-integration"]
+description = "Run race-enabled PostgreSQL outbox integration tests"
+run = "go test -race -tags=integration ./kafkaoutbox/..."
+
 [tasks.generate]
 description = "Refresh all checked-in generated Go artifacts"
-run = "go generate ./codexapp/... ./config/... ./filesystem/... ./health/... ./healthserver/... ./oapivalidator/... ./txmanager/..."
+run = "go generate ./codexapp/... ./config/... ./filesystem/... ./grpcserver/... ./health/... ./healthserver/... ./kafka/... ./kafkaoutbox/... ./oapivalidator/... ./oidcsession/... ./oidcsessionredis/... ./txmanager/..."
 
 [tasks."check-generated"]
 description = "Verify all checked-in generated Go artifacts"

@@ -11,25 +11,27 @@ import (
 type FailureKind string
 
 const (
-	FailureNotFound             FailureKind = "not_found"
-	FailureMethodNotAllowed     FailureKind = "method_not_allowed"
-	FailureMalformedRequest     FailureKind = "malformed_request"
-	FailureInvalidRequest       FailureKind = "invalid_request"
-	FailureUnsupportedMediaType FailureKind = "unsupported_media_type"
-	FailureUnauthenticated      FailureKind = "unauthenticated"
-	FailureForbidden            FailureKind = "forbidden"
-	FailureInternal             FailureKind = "internal"
+	FailureNotFound                  FailureKind = "not_found"
+	FailureMethodNotAllowed          FailureKind = "method_not_allowed"
+	FailureMalformedRequest          FailureKind = "malformed_request"
+	FailureInvalidRequest            FailureKind = "invalid_request"
+	FailureUnsupportedMediaType      FailureKind = "unsupported_media_type"
+	FailureUnauthenticated           FailureKind = "unauthenticated"
+	FailureForbidden                 FailureKind = "forbidden"
+	FailureAuthenticationUnavailable FailureKind = "authentication_unavailable"
+	FailureInternal                  FailureKind = "internal"
 )
 
 const (
-	ProblemTypeNotFound             = "urn:devctl:oapivalidator:problem:not-found"
-	ProblemTypeMethodNotAllowed     = "urn:devctl:oapivalidator:problem:method-not-allowed"
-	ProblemTypeMalformedRequest     = "urn:devctl:oapivalidator:problem:malformed-request"
-	ProblemTypeInvalidRequest       = "urn:devctl:oapivalidator:problem:invalid-request"
-	ProblemTypeUnsupportedMediaType = "urn:devctl:oapivalidator:problem:unsupported-media-type"
-	ProblemTypeUnauthenticated      = "urn:devctl:oapivalidator:problem:unauthenticated"
-	ProblemTypeForbidden            = "urn:devctl:oapivalidator:problem:forbidden"
-	ProblemTypeInternal             = "urn:devctl:oapivalidator:problem:internal"
+	ProblemTypeNotFound                  = "urn:devctl:oapivalidator:problem:not-found"
+	ProblemTypeMethodNotAllowed          = "urn:devctl:oapivalidator:problem:method-not-allowed"
+	ProblemTypeMalformedRequest          = "urn:devctl:oapivalidator:problem:malformed-request"
+	ProblemTypeInvalidRequest            = "urn:devctl:oapivalidator:problem:invalid-request"
+	ProblemTypeUnsupportedMediaType      = "urn:devctl:oapivalidator:problem:unsupported-media-type"
+	ProblemTypeUnauthenticated           = "urn:devctl:oapivalidator:problem:unauthenticated"
+	ProblemTypeForbidden                 = "urn:devctl:oapivalidator:problem:forbidden"
+	ProblemTypeAuthenticationUnavailable = "urn:devctl:oapivalidator:problem:authentication-unavailable"
+	ProblemTypeInternal                  = "urn:devctl:oapivalidator:problem:internal"
 )
 
 // Location identifies the part of the request containing an invalid value.
@@ -138,6 +140,8 @@ func problemMetadata(kind FailureKind) (problemType, title, detail string) {
 		return ProblemTypeUnauthenticated, "Authentication required", "Valid credentials are required."
 	case FailureForbidden:
 		return ProblemTypeForbidden, "Forbidden", "The credentials do not grant the required access."
+	case FailureAuthenticationUnavailable:
+		return ProblemTypeAuthenticationUnavailable, "Authentication unavailable", "Authentication is temporarily unavailable."
 	default:
 		return ProblemTypeInternal, "Internal server error", "The request could not be validated."
 	}
@@ -166,6 +170,8 @@ func statusForKind(kind FailureKind) int {
 		return http.StatusUnauthorized
 	case FailureForbidden:
 		return http.StatusForbidden
+	case FailureAuthenticationUnavailable:
+		return http.StatusServiceUnavailable
 	default:
 		return http.StatusInternalServerError
 	}

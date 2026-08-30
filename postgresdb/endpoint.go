@@ -16,6 +16,13 @@ type Endpoint struct {
 	manager     txmanager.Manager
 }
 
+// InTransaction reports whether ctx carries a transaction for this database.
+// It does not change the autocommit behavior of Endpoint operations.
+func (e *Endpoint) InTransaction(ctx context.Context) bool {
+	_, ok := e.coordinator.Current(ctx)
+	return ok
+}
+
 // Exec executes query using the active transaction when ctx carries one.
 func (e *Endpoint) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
 	if tx, ok := e.coordinator.Current(ctx); ok {
