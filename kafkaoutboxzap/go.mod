@@ -12,7 +12,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/devctllabs/go-libs/kafka v0.1.0 // indirect
-	github.com/devctllabs/go-libs/postgresdb v0.1.0 // indirect
+	github.com/devctllabs/go-libs/postgresdb v0.2.0 // indirect
 	github.com/devctllabs/go-libs/retry v0.1.0 // indirect
 	github.com/devctllabs/go-libs/txmanager v0.1.0 // indirect
 	github.com/exaring/otelpgx v0.11.1 // indirect
