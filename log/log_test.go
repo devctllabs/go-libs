@@ -34,6 +34,62 @@ func TestNewWritesJSONToConfiguredOutput(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestNewWritesConfiguredEncoding(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		encoding log.Encoding
+		assert   func(*testing.T, []byte)
+	}{
+		{
+			name:     "json",
+			encoding: log.EncodingJSON,
+			assert: func(t *testing.T, output []byte) {
+				t.Helper()
+				entries := decodeEntries(t, output)
+				require.Len(t, entries, 1)
+				require.Equal(t, "started", entries[0]["msg"])
+			},
+		},
+		{
+			name:     "console",
+			encoding: log.EncodingConsole,
+			assert: func(t *testing.T, output []byte) {
+				t.Helper()
+				require.Contains(t, string(output), "\tinfo\tstarted\t")
+				require.Contains(t, string(output), `"service": "api"`)
+			},
+		},
+		{
+			name:     "unsupported falls back to json",
+			encoding: log.Encoding("yaml"),
+			assert: func(t *testing.T, output []byte) {
+				t.Helper()
+				entries := decodeEntries(t, output)
+				require.Len(t, entries, 1)
+				require.Equal(t, "started", entries[0]["msg"])
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var output bytes.Buffer
+
+			logger := log.New(
+				zapcore.InfoLevel,
+				false,
+				log.WithOutput(&output),
+				log.WithEncoding(tt.encoding),
+			)
+			logger.Info("started", zap.String("service", "api"))
+
+			tt.assert(t, output.Bytes())
+		})
+	}
+}
+
 func TestNewFiltersEntriesBelowLevel(t *testing.T) {
 	t.Parallel()
 	var output bytes.Buffer

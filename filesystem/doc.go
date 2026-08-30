@@ -6,7 +6,9 @@
 // Read sources use fs.FS directly, so callers can supply embed.FS, os.DirFS,
 // fstest.MapFS, or another implementation without an adapter. Open returns an
 // OS rooted at an existing operating system directory. OS implements fs.FS,
-// fs.ReadLinkFS, Copier, Merger, Writer, Remover, and io.Closer.
+// fs.ReadLinkFS, Copier, Merger, Writer, Remover, and io.Closer. It also
+// publishes regular files and complete directory snapshots through its
+// PublishFile and PublishDirectory methods.
 //
 // Infrastructure components that directly coordinate filesystem mechanics may
 // accept only the narrow interface they use, such as Copier or Writer, and
@@ -35,4 +37,10 @@
 // do not provide atomic replacement or rollback. New regular files follow
 // os.CopyFS permission semantics; replacing an existing regular file preserves
 // its destination permissions.
+//
+// PublishFile prepares a sibling temporary file before replacing its target.
+// PublishDirectory prepares a complete sibling tree before replacing its
+// target with a backup-and-rename sequence. The latter prevents a partial tree
+// from being published on platforms with atomic sibling renames, but it can
+// briefly leave the target absent and does not claim power-loss durability.
 package filesystem

@@ -1,9 +1,10 @@
-// Package log constructs JSON-encoded zap loggers for application diagnostics.
+// Package log constructs JSON or console zap loggers for application diagnostics.
 //
-// New always uses zap's production JSON encoder with ISO 8601 timestamps. Log
+// New uses zap's production encoder configuration with ISO 8601 timestamps.
+// JSON is the default; WithEncoding selects console layout when needed. Log
 // entries go to stderr by default, and enabling stacktraces adds them only to
-// Error-level and higher entries. The package does not provide a plain-text
-// mode or install a global zap logger.
+// Error-level and higher entries. The package does not install a global zap
+// logger.
 //
 // # Integration
 //

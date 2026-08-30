@@ -42,6 +42,18 @@ func (o *OS) Remove(ctx context.Context, name string) error {
 	return o.root.Remove(local)
 }
 
+// RemoveAll removes name and its contents recursively within the root. Name
+// must satisfy fs.ValidPath. A missing name is not an error. If ctx is already
+// canceled, RemoveAll returns its error without changing the filesystem.
+func (o *OS) RemoveAll(ctx context.Context, name string) error {
+	local, err := operationName(ctx, "removeall", name)
+	if err != nil {
+		return err
+	}
+
+	return o.root.RemoveAll(local)
+}
+
 func operationName(ctx context.Context, op, name string) (string, error) {
 	if err := ctx.Err(); err != nil {
 		return "", err
