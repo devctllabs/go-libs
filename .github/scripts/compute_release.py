@@ -14,7 +14,6 @@ from typing import Callable
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 MODULES = (
     "buildinfo",
-    "codexapp",
     "config",
     "dbmigrate",
     "debugserver",

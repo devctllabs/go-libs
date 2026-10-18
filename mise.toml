@@ -9,29 +9,17 @@ node = "24"
 "npm:@openai/codex" = "0.146.0"
 "npm:quicktype" = "26.0.0"
 
-[tasks."codexapp:generate"]
-description = "Refresh the checked-in Codex App Server protocol snapshot and Go types"
-run = "go generate ./codexapp/..."
-
-[tasks."codexapp:check-generated"]
-description = "Verify the checked-in Codex App Server protocol artifacts"
-run = "go run ./codexapp/internal/protocol/cmd/generate -check"
-
-[tasks."codexapp:test"]
-description = "Run codexapp tests"
-run = "go test ./codexapp/..."
-
 [tasks.test]
 description = "Run tests for all Go modules"
-run = "go test ./buildinfo/... ./codexapp/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "go test ./buildinfo/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
 
 [tasks.lint]
 description = "Run golangci-lint for all Go modules"
-run = "golangci-lint run ./buildinfo/... ./codexapp/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "golangci-lint run ./buildinfo/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
 
 [tasks."test:race"]
 description = "Run race-enabled tests for all Go modules"
-run = "go test -race ./buildinfo/... ./codexapp/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "go test -race ./buildinfo/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
 
 [tasks."oidcsessionredis:test-integration"]
 description = "Run race-enabled Redis session integration tests"
@@ -51,7 +39,7 @@ run = "go test -race -tags=integration ./kafkaoutbox/..."
 
 [tasks.generate]
 description = "Refresh all checked-in generated Go artifacts"
-run = "go generate ./codexapp/... ./config/... ./filesystem/... ./grpcserver/... ./health/... ./healthserver/... ./kafka/... ./kafkaoutbox/... ./oapivalidator/... ./oidcsession/... ./oidcsessionredis/... ./txmanager/..."
+run = "go generate ./config/... ./filesystem/... ./grpcserver/... ./health/... ./healthserver/... ./kafka/... ./kafkaoutbox/... ./oapivalidator/... ./oidcsession/... ./oidcsessionredis/... ./txmanager/..."
 
 [tasks."check-generated"]
 description = "Verify all checked-in generated Go artifacts"

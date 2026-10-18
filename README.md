@@ -81,12 +81,6 @@ go get github.com/devctllabs/go-libs/<module>@latest
 | [`oidcsession`](oidcsession) | OIDC provider lifecycle, encrypted login state, and browser session HTTP flows. |
 | [`oidcsessionredis`](oidcsessionredis) | Redis-backed opaque refresh sessions with encrypted provider tokens. |
 
-### Codex integration
-
-| Module | Description |
-| --- | --- |
-| [`codexapp`](codexapp) | A process-owning Go client for the Codex App Server JSONL JSON-RPC protocol. See its [package guide](codexapp/README.md). |
-
 ## Development
 
 The repository pins its development tools with `mise`:
