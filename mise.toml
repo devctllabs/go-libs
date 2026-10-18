@@ -2,7 +2,7 @@
 lockfile = true
 
 [tools]
-go = "1.25.0"
+go = "1.25.11"
 golangci-lint = "2.12.2"
 git-cliff = "2.13.1"
 node = "24"
@@ -23,19 +23,23 @@ run = "go test ./codexapp/..."
 
 [tasks.test]
 description = "Run tests for all Go modules"
-run = "go test ./buildinfo/... ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "go test ./buildinfo/... ./codexapp/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
 
 [tasks.lint]
 description = "Run golangci-lint for all Go modules"
-run = "golangci-lint run ./buildinfo/... ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "golangci-lint run ./buildinfo/... ./codexapp/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
 
 [tasks."test:race"]
 description = "Run race-enabled tests for all Go modules"
-run = "go test -race ./buildinfo/... ./codexapp/... ./config/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
+run = "go test -race ./buildinfo/... ./codexapp/... ./config/... ./dbmigrate/... ./debugserver/... ./di/... ./filesystem/... ./grpcclient/... ./grpcserver/... ./grpczap/... ./health/... ./healthgrpc/... ./healthotel/... ./healthserver/... ./healthzap/... ./kafka/... ./kafkaoutbox/... ./kafkaoutboxzap/... ./kafkaproto/... ./kafkazap/... ./lifecycle/... ./log/... ./oapivalidator/... ./oapivalidatorjwt/... ./oidcsession/... ./oidcsessionredis/... ./postgresdb/... ./retry/... ./sqlitedb/... ./telemetry/... ./txmanager/..."
 
 [tasks."oidcsessionredis:test-integration"]
 description = "Run race-enabled Redis session integration tests"
 run = "go test -race -tags=integration ./oidcsessionredis/..."
+
+[tasks."dbmigrate:test-integration"]
+description = "Run PostgreSQL and ClickHouse migration integration tests"
+run = "go test -race -tags=integration ./dbmigrate/..."
 
 [tasks."postgresdb:test-integration"]
 description = "Run race-enabled PostgreSQL integration tests"
