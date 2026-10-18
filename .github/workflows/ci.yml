@@ -11,6 +11,10 @@ on:
         description: Run Go checks regardless of changed paths.
         type: boolean
         default: false
+      skip_lint:
+        description: Skip linting while keeping the other Go quality checks.
+        type: boolean
+        default: false
       run_postgres_integration:
         description: Run PostgreSQL integration tests regardless of changed paths.
         type: boolean
@@ -115,6 +119,7 @@ jobs:
           restore-keys: |
             quality-go-${{ runner.os }}-${{ runner.arch }}-${{ steps.go-cache.outputs.version }}-
       - name: Lint
+        if: ${{ !inputs.skip_lint }}
         run: mise run lint
       - name: Check generated code
         run: mise run check-generated
@@ -241,7 +246,7 @@ jobs:
 
   gate:
     if: always()
-    needs: [changes, quality, postgres-integration, redis-integration, kafkaoutbox-integration]
+    needs: [changes, quality, postgres-integration, redis-integration, kafkaoutbox-integration, dbmigrate-integration]
     runs-on: ubuntu-latest
     steps:
       - name: Verify CI result
@@ -251,8 +256,9 @@ jobs:
           POSTGRES_RESULT: ${{ needs.postgres-integration.result }}
           REDIS_RESULT: ${{ needs.redis-integration.result }}
           KAFKAOUTBOX_RESULT: ${{ needs.kafkaoutbox-integration.result }}
+          DBMIGRATE_RESULT: ${{ needs.dbmigrate-integration.result }}
         run: |
-          for result in "$CHANGES_RESULT" "$QUALITY_RESULT" "$POSTGRES_RESULT" "$REDIS_RESULT" "$KAFKAOUTBOX_RESULT"; do
+          for result in "$CHANGES_RESULT" "$QUALITY_RESULT" "$POSTGRES_RESULT" "$REDIS_RESULT" "$KAFKAOUTBOX_RESULT" "$DBMIGRATE_RESULT"; do
             case "$result" in
               success|skipped) ;;
               *) exit 1 ;;

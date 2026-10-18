@@ -2,7 +2,6 @@ go 1.25.11
 
 use (
 	./buildinfo
-	./codexapp
 	./config
 	./dbmigrate
 	./debugserver
