@@ -8,7 +8,7 @@ on:
         description: Module to preview.
         required: true
         type: choice
-        options: [buildinfo, codexapp, config, debugserver, di, filesystem, grpcclient, grpcserver, grpczap, health, healthgrpc, healthotel, healthserver, healthzap, kafka, kafkaproto, kafkazap, kafkaoutbox, kafkaoutboxzap, lifecycle, log, oapivalidator, oapivalidatorjwt, oidcsession, oidcsessionredis, postgresdb, retry, sqlitedb, telemetry, txmanager]
+        options: [buildinfo, codexapp, config, dbmigrate, debugserver, di, filesystem, grpcclient, grpcserver, grpczap, health, healthgrpc, healthotel, healthserver, healthzap, kafka, kafkaproto, kafkazap, kafkaoutbox, kafkaoutboxzap, lifecycle, log, oapivalidator, oapivalidatorjwt, oidcsession, oidcsessionredis, postgresdb, retry, sqlitedb, telemetry, txmanager]
       bump:
         description: Stable semantic-version increment.
         required: true

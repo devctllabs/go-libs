@@ -66,6 +66,7 @@ go get github.com/devctllabs/go-libs/<module>@latest
 
 | Module | Description |
 | --- | --- |
+| [`dbmigrate`](dbmigrate) | Recursive SQL migration selections over `fs.FS`, executed by golang-migrate. |
 | [`filesystem`](filesystem) | Rooted filesystem operations that compose with the standard `io/fs` package. |
 | [`postgresdb`](postgresdb) | Instrumented pgx reader and writer pools for PostgreSQL. |
 | [`sqlitedb`](sqlitedb) | Instrumented SQLite reader and writer endpoints. |
@@ -97,10 +98,11 @@ mise run test:race
 mise run check-generated
 ```
 
-Run the PostgreSQL integration suite separately when changing `postgresdb` or `txmanager`:
+Run the relevant integration suite separately (Docker required):
 
 ```sh
 mise run postgresdb:test-integration
+mise run dbmigrate:test-integration
 mise run oidcsessionredis:test-integration
 mise run kafkaoutbox:test-integration
 ```

@@ -16,6 +16,7 @@ MODULES = (
     "buildinfo",
     "codexapp",
     "config",
+    "dbmigrate",
     "debugserver",
     "di",
     "filesystem",
